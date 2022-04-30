@@ -6,12 +6,13 @@
 #include<io.h>
 #include<iostream>
 using namespace std;
-#define Stack_entry Move
-#define maxstack 100
-const int n = 3;
-int P;//*player win indicator
-int draw = 0;
-class Move {//move de el move rl ha3melha ta2reebn?
+#define maxstack 100 
+#define success true
+#define underflow false
+#define overflow false
+const int n = 3;//board size
+char player1[25], player2[25];
+class Move {
 public:
     int row;
     int col;
@@ -80,30 +81,53 @@ bool Stack::empty()const
         outcome = false;
     return outcome;
 }
-void initializeBoard(struct node* arr[]) {
+class Board{
+public:
+    Board();
+    void printBoard();
+    Move getposition(Move new_move);
+    Move input();
+    void perform_move(Move step);
+    int isGameOver();
+    bool done();
+    void playerWins(char c);
+    int legal_moves(Stack& moves);
+    bool is_ok(Move step);
+    int evaluate();
+    int worst_case();
+    bool better(int value, int old_value);
+    int moves_done;
+    int Winner;
+    int pl;
+    struct node* arr[n];
+};
+Board:: Board() {
+    moves_done = 0;
+    pl=1;
+    Winner=0;
     int i, j;
     struct node* newNode, * ptr;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {//initialize the board
         for (j = 0; j < n; j++) {
             newNode = new node();
-            newNode->next = NULL;//*kda ana 3amlt node gdeeda w khaltha fadya w mesh betshawer 3ala 7aga y3ni ll men node wa7da
+            newNode->next = NULL;
             newNode->down = NULL;
-            newNode->val = ' ';
-            if (j == 0) {//*awel node f kol row
-                arr[i] = newNode;//*bakhali awel element hya el ll el fadya kda ana khadt el kan newnode byshawer 3aleih w 2a2dar akhali nn teshwar 3ala 7aga tany
-                ptr = arr[i];//*bakhalai el pointer yeshawer 3aleiha
+            newNode->val = ' ';//makes the values of the board empty
+            if (j == 0) {
+                arr[i] = newNode;//put the head of the linked list in the array elements
+                ptr = arr[i];
             }
-            else {//*ana kda akeni ba3mel 2d array bs awel coloumn array well tale3 menha ll 3shan akmel ba2eit el array
+            else {//create the rows by creating nodes of the linkedlists
                 ptr->next = newNode;
                 ptr = ptr->next;
             }
         }
     }
     //down pointer
-    for (j = 0; j < n - 1; j++) {//*j-1 3shan akher row mafeesh 7aga ta7to awaslo biha
-        ptr = arr[j];//*kda ana ba link kol el element el fel array b b3d
+    for (j = 0; j < n - 1; j++) {
+        ptr = arr[j];//
         newNode = arr[j + 1];
-        for (i = 0; i < n; i++) {
+        for (i = 0; i < n; i++) {//links each node with the node beneath it
             ptr->down = newNode;
             ptr = ptr->next;
             newNode = newNode->next;
@@ -111,7 +135,7 @@ void initializeBoard(struct node* arr[]) {
     }
 }
 //prints the board
-void Board:: print(struct node* arr[]) {//**ba3dein
+void Board:: printBoard() {
     int i, j, k;
     struct node* ptr;
     for (k = 0; k < n; k++) {
